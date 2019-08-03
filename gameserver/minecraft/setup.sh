@@ -289,8 +289,8 @@ fi
 
 # Setting permissions to server owner
 if [[ $P_SKIP_ROOT -ne 1 ]]; then
-    logVerbose "Assigning ownership"
-    chown -R "${P_USER}" "${P_TARGET_DIR}"
+    logVerbose "Assigning ownership ..."
+    chown -R ${P_USER}:games "${P_TARGET_DIR}"
 else
     logWarn "Skipped ownership assignment. Please assign ownership of the server folder to the accounut running the server using chown."
 fi
