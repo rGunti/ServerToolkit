@@ -6,6 +6,9 @@ source "${SCRIPT_LOCATION}/utils/log.sh"
 
 cd "$SCRIPT_LOCATION"
 
+logVerbose "Resetting ..."
+git reset --hard HEAD
+
 logVerbose "Pulling updates ..."
 git pull
 
