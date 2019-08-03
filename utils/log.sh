@@ -2,6 +2,12 @@
 function log {
     _icon=$1
     _msg=$2
+    echo "$1 $2"
+}
+
+function logWithTimestamp {
+    _icon=$1
+    _msg=$2
     echo "$(date +'%F %T') $1 $2"
 }
 
