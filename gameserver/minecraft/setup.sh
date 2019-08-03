@@ -285,3 +285,16 @@ EOF
 else
     logWarn "Skipped daemon installation ..."
 fi
+
+# Setting permissions to server owner
+if [[ $P_SKIP_ROOT -eq 0 ]]; then
+    logVerbose "Assigning ownership"
+    chown -R "${P_USER}" "${P_TARGET_DIR}"
+else
+    logWarn "Skipped ownership assignment. Please assign ownership of the server folder to the accounut running the server using chown."
+fi
+
+# COMPLETED!
+logInfo "Server installation completed!"
+logInfo "Your server has been installed here: ${P_TARGET_DIR}"
+logWarn "Please make sure that you start the server manually once to assign OP permissions to your account."
