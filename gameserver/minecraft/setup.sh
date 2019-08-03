@@ -61,7 +61,6 @@ do
         P_MC_VERSION="$2"
         shift; shift;
         ;;
-        *)
         --mc-server-port)
         P_SERVER_PORT="$2"
         shift; shift;
