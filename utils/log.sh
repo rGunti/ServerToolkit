@@ -21,7 +21,11 @@ function logWithTimestamp {
     echo -e "$(date +'%F %T') $1 $2"
 }
 
-function logInternal { log " ^ " "${1}" ${COLOR_DGRAY}; }
+function logInternal {
+    if [ ! -z $ST_INTERNAL ]; then
+        log " ^ " "${1}" ${COLOR_DGRAY}
+    fi
+}
 function logVerbose { log "   " "${1}"; }
 function logDebug { log " * " "${1}" ${COLOR_LBLUE}; }
 function logInfo { log "[i]" "${1}" ${COLOR_GREEN}; }
