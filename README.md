@@ -2,6 +2,7 @@
 A collection of scripts to manage servers at guntinet.ch.
 
 ## Overview
+- [`gameserver`](./gameserver/README.md): Scripts for managing gameservers
 - `utils`: Utilities for other scripts to include (like logging and root-checking)
 - `update.sh`: Updates the scripts
 

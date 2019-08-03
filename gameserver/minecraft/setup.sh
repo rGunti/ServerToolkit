@@ -84,6 +84,7 @@ do
         ;;
         *)
         logFatal "Invalid parameter provided: $1"
+        logWarn "Please refer to README.md provided with this script for more information."
         exit 1
         ;;
     esac
@@ -287,7 +288,7 @@ else
 fi
 
 # Setting permissions to server owner
-if [[ $P_SKIP_ROOT -eq 0 ]]; then
+if [[ $P_SKIP_ROOT -ne 1 ]]; then
     logVerbose "Assigning ownership"
     chown -R "${P_USER}" "${P_TARGET_DIR}"
 else
