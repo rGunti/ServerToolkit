@@ -265,7 +265,7 @@ if [[ $P_INSTALL_DAEMON -eq 1 ]]; then
 
     cat << EOF > "${daemon_path}"
 [Unit]
-Description=Games: Minecraft ${P_INSTANCE_NAME}
+Description=Game Server: Minecraft ${P_INSTANCE_NAME} (${P_SERVER_PORT})
 After=network.target
 
 [Service]
