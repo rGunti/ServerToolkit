@@ -1,5 +1,5 @@
 #!/bin/bash
-SCRIPT_LOCATION="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+SCRIPT_LOCATION="$(cd "$(dirname ${BASH_SOURCE[0]})"; pwd -P)"
 
 source "${SCRIPT_LOCATION}/../../utils/functions.sh"
 

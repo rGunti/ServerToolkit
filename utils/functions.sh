@@ -1,5 +1,5 @@
 #!/bin/bash
-LIB_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+LIB_DIR="$(cd "$(dirname ${BASH_SOURCE[0]})"; pwd -P)"
 source "${LIB_DIR}/log.sh"
 
 function ensureRoot {

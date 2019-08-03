@@ -19,5 +19,6 @@ fi
 
 logVerbose "Making scripts executable ..."
 chmod +x **/*.sh
+chmod +x ./update.sh
 
 logInfo "Update completed!"
