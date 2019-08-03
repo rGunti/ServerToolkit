@@ -17,6 +17,7 @@ P_LEVEL_SEED=""
 P_SERVER_CAPACITY=10
 P_CONFIGURE=1
 P_INSTALL_DAEMON=1
+P_BUILD=1
 
 # ### Arguments ###
 POSITIONAL=()
@@ -35,6 +36,10 @@ do
         ;;
         --skip-auto-config)
         P_CONFIGURE=0
+        shift
+        ;;
+        --skip-build)
+        P_BUILD=0
         shift
         ;;
         --gs-user)
@@ -78,8 +83,8 @@ do
         shift; shift;
         ;;
         *)
-        POSITIONAL+=("$1")
-        shift
+        logFatal "Invalid parameter provided: $1"
+        exit 1
         ;;
     esac
 done
@@ -164,17 +169,18 @@ else
 fi
 
 # Running BuildTools
-logVerbose "Now starting ${buildtools_path} for version \"${P_MC_VERSION}\", this could take a while ..."
-
-${P_JAVA_PATH} -jar ${buildtools_path} --rev ${P_MC_VERSION}
-
-build_success=$?
-
-if [[ ${build_success} -ne 0 ]]; then
-    logFatal "Build failed with exit code ${build_success}!"
-    exit 2
+if [[ $P_BUILD -eq 1 ]]; then
+    logVerbose "Now starting ${buildtools_path} for version \"${P_MC_VERSION}\", this could take a while ..."
+    ${P_JAVA_PATH} -jar ${buildtools_path} --rev ${P_MC_VERSION}
+    build_success=$?
+    if [[ ${build_success} -ne 0 ]]; then
+        logFatal "Build failed with exit code ${build_success}!"
+        exit 2
+    else
+        logInfo "Build completed!"
+    fi
 else
-    logInfo "Build completed!"
+    logWarn "Skipped build!"
 fi
 
 # Configuring server as intended
@@ -258,21 +264,21 @@ if [[ $P_INSTALL_DAEMON -eq 1 ]]; then
     logVerbose "Installing daemon \"${daemon_name}\"..."
 
     cat << EOF > "${daemon_path}"
-    [Unit]
-    Description=Games: Minecraft ${P_INSTANCE_NAME}
-    After=network.target
+[Unit]
+Description=Games: Minecraft ${P_INSTANCE_NAME}
+After=network.target
 
-    [Service]
-    Type=simple
-    WorkingDirectory=${P_TARGET_DIR}
-    ExecStart=${P_TARGET_DIR}/startup.sh
-    User=${P_USER}
-    Restart=on-failure
-    RestartSec=5s
+[Service]
+Type=simple
+WorkingDirectory=${P_TARGET_DIR}
+ExecStart=${P_TARGET_DIR}/startup.sh
+User=${P_USER}
+Restart=on-failure
+RestartSec=5s
 
-    [Install]
-    WantedBy=multi-user.target
-    EOF
+[Install]
+WantedBy=multi-user.target
+EOF
 
     logVerbose "Reloading system daemons ..."
     systemctl daemon-reload
