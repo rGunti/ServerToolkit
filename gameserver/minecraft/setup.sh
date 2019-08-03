@@ -8,9 +8,10 @@ function ensureGameserver {
     _gameserverUser=${1:-gameserver}
 
     userInfo=$(cat /etc/passwd | grep ${_gameserverUser})
-    if [ $? -ne 1 ]; then
+    if [[ $? -ne 0 ]]; then
         logFatal "User \"${_gameserverUser}\" could not be found!"
         exit 1
+        return
     fi
 
     IFS=':' read -ra ADDR <<< "${userInfo}"
