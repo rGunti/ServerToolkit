@@ -66,6 +66,21 @@ do
     esac
 done
 
+# ### Functions ###
+function ensureGameserverUser {
+    _gameserverUser=${1:-gameserver}
+
+    userInfo=$(cat /etc/passwd | grep ${_gameserverUser})
+    if [[ $? -ne 0 ]]; then
+        logFatal "User \"${_gameserverUser}\" could not be found!"
+        exit 1
+        return
+    fi
+
+    IFS=':' read -ra ADDR <<< "${userInfo}"
+    export GAMESERVER_HOMEDIR="${ADDR[5]}"
+}
+
 # ### main() ###
 # Pre-checks
 if [[ $P_SKIP_ROOT -eq 0 ]]; then
