@@ -7,6 +7,7 @@ source "${SCRIPT_LOCATION}/../../utils/functions.sh"
 # ### Parameters ###
 P_SKIP_ROOT=0
 P_SKIP_DAEMON=0
+P_SIMULATE=0
 P_USER="gameserver"
 #P_HOME=autodetect/optional
 P_INSTANCE_NAME=""
@@ -53,6 +54,10 @@ do
         P_STORAGE_DIR="$2"
         shift; shift;
         ;;
+        --simulate)
+        P_SIMULATE=1
+        shift;
+        ;;
         *)
         logFatal "Invalid parameter provided: $1"
         logWarn "Please refer to README.md provided with this script for more information."
@@ -73,7 +78,7 @@ if [[ -z $P_INSTANCE_NAME ]]; then
     logFatal "Failed to provide instance name for server (-n, --instance-name)"
     exit 1
 else
-    logDebug "We're going to install a new instance called \"${P_INSTANCE_NAME}\""
+    logDebug "We're going to backup the instance called \"${P_INSTANCE_NAME}\""
 fi
 
 if [[ -z $P_HOME ]]; then
@@ -87,23 +92,28 @@ logDebug "Gameserver User Home is ${P_HOME}"
 
 if [[ -z $P_TARGET_DIR ]]; then
     P_TARGET_DIR="${P_HOME}/minecraft/${P_INSTANCE_NAME}/"
-    logDebug "Installing server \"${P_INSTANCE_NAME}\" at ${P_TARGET_DIR}"
+    logDebug "Backing up server \"${P_INSTANCE_NAME}\" at ${P_TARGET_DIR}"
 else
-    logDebug "Installing server \"${P_INSTANCE_NAME}\" at provided location ${P_TARGET_DIR}"
+    logDebug "Backing up server \"${P_INSTANCE_NAME}\" at provided location ${P_TARGET_DIR}"
 fi
 
 # Shutdown service
 daemon_name="game-minecraft-${P_INSTANCE_NAME}"
 
 if [[ $P_SKIP_ROOT -eq 0 ]] && [[ $P_SKIP_DAEMON -eq 0 ]]; then
-    logDebug "Shutting down server ..."
-    systemctl stop "${daemon_name}"
+    if [[ $P_SIMULATE -eq 0 ]]; then
+        logVerbose "Shutting down server ..."
+        systemctl stop "${daemon_name}"
+    else
+        logDebug "Simulation: Shutting down server ..."
+    fi
 fi
 
 # Prepare the ZIP
 backup_timestamp="$(date +'%Y%m%d-%H%M')"
 zip_filename="${P_INSTANCE_NAME}-${backup_timestamp}.zip"
 zip_filelist="${zip_filename}.LST"
+zip_filelist_path="${P_STORAGE_DIR}/${zip_filelist}"
 
 cd "${P_TARGET_DIR}"
 
@@ -125,24 +135,32 @@ find *.json \
     *.png \
     *.properties \
     *.sh \
-    >> "${zip_filelist}"
-find plugins/ >> "${zip_filelist}"
-find ${P_WORLD_NAME}*/ >> "${zip_filelist}"
+    > "${zip_filelist_path}"
+find plugins/ >> "${zip_filelist_path}"
+find ${P_WORLD_NAME}*/ >> "${zip_filelist_path}"
 
 # ZIP it
-logDebug "Packing the server ..."
-cat "${zip_filelist}" | zip -@ "${P_STORAGE_DIR}/${zip_filename}"
+if [[ $P_SIMULATE -eq 0 ]]; then
+    logDebug "Packing the server ..."
+    cat "${zip_filelist_path}" | zip -@ "${P_STORAGE_DIR}/${zip_filename}"
 
-# Cleanup
-logVerbose "Deleting file list ..."
-rm "${zip_filelist}"
+    # Cleanup
+    logVerbose "Deleting file list ..."
+    rm "${zip_filelist_path}"
+else
+    logDebug "Simulation: Packing files listed in \"${zip_filelist_path}\""
+fi
 
 # Start server back up again
 if [[ $P_SKIP_ROOT -eq 0 ]] && [[ $P_SKIP_DAEMON -eq 0 ]]; then
-    logDebug "Starting up server ..."
-    systemctl start "${daemon_name}"
+    if [[ $P_SIMULATE -eq 0 ]]; then
+        logDebug "Starting server back up ..."
+        systemctl start "${daemon_name}"
+    else
+        logDebug "Simulation: Starting server back up ..."
+    fi
 fi
 
 # Finish
 logInfo "Backup finished!"
-logInfo "Backup stored here: ${zip_filename}"
+logInfo "Backup stored here: ${P_STORAGE_DIR}/${zip_filename}"
