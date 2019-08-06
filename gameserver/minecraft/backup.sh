@@ -156,8 +156,15 @@ find ${P_WORLD_NAME}*/ >> "${zip_filelist_path}"
 
 # ZIP it
 if [[ $P_SIMULATE -eq 0 ]]; then
+    SECONDS=0
+
     logDebug "Packing the server ..."
     cat "${zip_filelist_path}" | zip -@ "${P_STORAGE_DIR}/${zip_filename}"
+    if [[ $? -eq 0 ]]; then
+        logInfo "Packing completed, took ${SECONDS} seconds"
+    else
+        logError "Failed to pack files"
+    fi
 
     # Cleanup
     logVerbose "Deleting file list ..."
